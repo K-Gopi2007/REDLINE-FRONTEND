@@ -28,8 +28,6 @@ export default function Navbar({ isPublic }: { isPublic?: boolean }) {
       {isPublic ? (
         <div className="hidden md:flex items-center gap-8 text-body-sm font-medium">
           <a href="#features" className="text-ink-body hover:text-accent-primary transition-colors">Features</a>
-          <a href="#how-it-works" className="text-ink-body hover:text-accent-primary transition-colors">How it works</a>
-          <a href="#faq" className="text-ink-body hover:text-accent-primary transition-colors">FAQ</a>
         </div>
       ) : (
         <div className="hidden md:flex items-center gap-2 bg-surface-container-low p-1 rounded-full border border-gray-100">

@@ -111,7 +111,7 @@ export default function Landing() {
         </div>
 
         {/* Features */}
-        <div className="mb-32">
+        <div id="features" className="mb-32">
           <div className="text-center mb-16">
             <div className="text-label-sm text-ink-subdued uppercase tracking-widest mb-4">ENGINEERED FOR SOVEREIGNTY</div>
             <h2 className="text-headline-lg text-ink-heavy mb-4">Your legal department, without the billable hours.</h2>

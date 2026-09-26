@@ -100,10 +100,9 @@ export default function Documents() {
             <span className="flex items-center gap-1.5 text-risk-low-text"><span className="w-1.5 h-1.5 rounded-full bg-risk-low-text"></span> Low {lowRiskCount}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="hidden lg:inline-flex text-risk-low-text border-risk-low-outline hover:bg-risk-low-surface" onClick={() => handleAction('Accept Safe Edits')}>✓ Accept Safe Edits</Button>
             <Button variant="ghost" size="sm" onClick={openRiskDigestModal}>⬇ Export Digest</Button>
-            <Button variant="ghost" size="sm" onClick={() => handleAction('Redlined DOCX')}>⬇ Redlined DOCX</Button>
-            <Button variant="primary" size="sm" className="bg-accent-deep hover:bg-ink-heavy" onClick={() => handleAction('Send Counter Draft')}>▷ Send Counter-Draft</Button>
+            <Button variant="ghost" size="sm" onClick={() => handleAction('Redlined DOCX')} disabled>⬇ Redlined DOCX</Button>
+            <Button variant="primary" size="sm" className="bg-accent-deep hover:bg-ink-heavy" onClick={() => handleAction('Send Counter Draft')} disabled>▷ Send Counter-Draft</Button>
           </div>
         </div>
       </div>
@@ -129,7 +128,7 @@ export default function Documents() {
             <div className="absolute bottom-0 left-0 right-0 bg-surface-container-low border-t border-gray-200 p-4 rounded-b-2xl flex items-center justify-between text-body-sm">
               <div className="font-medium text-ink-body">EXECUTION READINESS — Review agent findings before signing.</div>
               <div className="flex gap-2">
-                <Button variant="primary" size="sm" className="bg-accent-deep hover:bg-ink-heavy" onClick={() => handleAction('Lock Draft')}>Lock Draft</Button>
+                <Button variant="primary" size="sm" className="bg-accent-deep hover:bg-ink-heavy" onClick={() => handleAction('Lock Draft')} disabled>Lock Draft</Button>
               </div>
             </div>
           </PaperSheet>
@@ -200,7 +199,7 @@ export default function Documents() {
                       </div>
                       
                       <div className="flex flex-col gap-2">
-                        <Button variant="primary" className="w-full">✓ Apply Suggested Clause</Button>
+                        <Button variant="primary" className="w-full" disabled>✓ Apply Suggested Clause</Button>
                       </div>
                     </div>
                   )}

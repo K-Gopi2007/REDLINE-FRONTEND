@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 
 export default function Library() {
   const { openNewContractModal } = useAppContext();
-  const [selectedContract, setSelectedContract] = useState<number | null>(null);
+
   const [contracts, setContracts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -104,7 +104,6 @@ export default function Library() {
       header: '', 
       accessor: (row: any) => (
         <div className="flex items-center justify-end gap-3 pt-1">
-          <button onClick={() => setSelectedContract(row.id)} className="text-ink-subdued hover:text-accent-primary transition-colors font-medium">History</button>
           <button className="text-ink-subdued hover:text-ink-body transition-colors"><span className="material-symbols-outlined text-[18px]">download</span></button>
           <button className={`transition-colors ${row.favorite ? 'text-[#F59E0B]' : 'text-ink-subdued hover:text-ink-body'}`}>
             <span className="material-symbols-outlined text-[18px]" style={row.favorite ? {fontVariationSettings: "'FILL' 1"} : {}}>star</span>
@@ -194,36 +193,6 @@ export default function Library() {
         )}
       </div>
 
-      {/* Version History Drawer (Mock) */}
-      {selectedContract && (
-        <>
-          <div className="fixed inset-0 z-40 bg-ink-heavy/20 backdrop-blur-sm" onClick={() => setSelectedContract(null)}></div>
-          <div 
-            className="fixed inset-y-0 right-0 w-[400px] bg-white shadow-2xl z-50 border-l border-gray-200 flex flex-col"
-            style={{ boxShadow: '-8px 0 24px rgba(0,0,0,0.1)' }}
-          >
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-surface-bright">
-              <h2 className="text-headline-sm">Version History</h2>
-              <button onClick={() => setSelectedContract(null)} className="text-ink-subdued hover:text-ink-heavy"><span className="material-symbols-outlined">close</span></button>
-            </div>
-            <div className="p-6 overflow-y-auto flex-1 bg-background">
-              <div className="relative border-l-2 border-gray-200 ml-4 space-y-8 pb-4">
-                <div className="relative pl-6">
-                  <div className="absolute w-4 h-4 bg-accent-primary rounded-full border-4 border-white -left-[9px] top-1"></div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold text-body-md">Version 1 (Original)</span>
-                    <span className="text-label-sm text-ink-subdued">Just now</span>
-                  </div>
-                  <p className="text-body-sm text-ink-subdued mb-3">Initial document upload by user.</p>
-                  <div className="flex gap-2">
-                    <Link to={`/workspace?contractId=${selectedContract}`}><Button variant="primary" size="sm">View</Button></Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
     </div>
   );
 }

@@ -51,9 +51,8 @@ export default function AccountMenu() {
         )}
         style={{ boxShadow: '0 1px 3px 0 rgba(31,36,33,0.04), 0 6px 16px -4px rgba(31,36,33,0.06)' }}
       >
-        <div className="w-8 h-8 rounded-full bg-surface-dim flex items-center justify-center text-accent-primary font-bold overflow-hidden">
-          {/* Mock Avatar */}
-          <img src="https://i.pravatar.cc/150?u=a042581f4e29026024d" alt="Maya Lin" className="w-full h-full object-cover" />
+        <div className="w-8 h-8 rounded-full bg-accent-pale-wash flex items-center justify-center text-accent-primary font-bold overflow-hidden">
+          {user?.email ? user.email.charAt(0).toUpperCase() : 'U'}
         </div>
         <div className="hidden md:flex flex-col items-start">
           <span className="text-label-md font-semibold leading-tight text-ink-body">{user?.email?.split('@')[0] || 'User'}</span>

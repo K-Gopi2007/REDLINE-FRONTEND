@@ -227,7 +227,13 @@ export default function SignIn() {
           <Button 
             variant="ghost" 
             className="w-full flex items-center justify-center gap-2"
-            onClick={() => handleGoogleLogin()}
+            onClick={() => {
+              if (!import.meta.env.VITE_GOOGLE_CLIENT_ID || import.meta.env.VITE_GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID') {
+                setError('Missing Google Client ID. Please configure VITE_GOOGLE_CLIENT_ID in your environment.');
+                return;
+              }
+              handleGoogleLogin();
+            }}
             disabled={isGoogleLoading || isLoading}
           >
             {isGoogleLoading ? (
