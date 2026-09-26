@@ -31,9 +31,8 @@ export default function Workspace() {
       try {
         // Step 1: Review
         setStatus('reviewing');
-        const reviewRes = await apiFetch('/api/v1/contracts/review', {
-          method: 'POST',
-          body: JSON.stringify({ contract_id: contractId })
+        const reviewRes = await apiFetch(`/api/v1/contracts/review?contract_id=${contractId}`, {
+          method: 'POST'
         });
         if (!reviewRes.ok) {
           let errorMsg = `Failed to review contract (${reviewRes.status}).`;
@@ -49,9 +48,8 @@ export default function Workspace() {
 
         // Step 2: Risk Analysis
         setStatus('analyzing');
-        const riskRes = await apiFetch('/api/v1/contracts/analyze-risk', {
-          method: 'POST',
-          body: JSON.stringify({ contract_id: contractId })
+        const riskRes = await apiFetch(`/api/v1/contracts/analyze-risk?contract_id=${contractId}`, {
+          method: 'POST'
         });
         if (!riskRes.ok) {
           let errorMsg = `Risk analysis failed (${riskRes.status}).`;
@@ -67,9 +65,8 @@ export default function Workspace() {
 
         // Step 3: Negotiate
         setStatus('negotiating');
-        const negRes = await apiFetch('/api/v1/contracts/negotiate', {
-          method: 'POST',
-          body: JSON.stringify({ contract_id: contractId })
+        const negRes = await apiFetch(`/api/v1/contracts/negotiate?contract_id=${contractId}`, {
+          method: 'POST'
         });
         if (!negRes.ok) {
           let errorMsg = `Negotiation generation failed (${negRes.status}).`;
@@ -97,9 +94,9 @@ export default function Workspace() {
     if (!contractId || !explanationPrompt.trim()) return;
     setIsExplaining(true);
     try {
-      const res = await apiFetch('/api/v1/contracts/explain', {
+      const res = await apiFetch(`/api/v1/contracts/explain?contract_id=${contractId}`, {
         method: 'POST',
-        body: JSON.stringify({ contract_id: contractId, query: explanationPrompt })
+        body: JSON.stringify({ query: explanationPrompt })
       });
       if (!res.ok) throw new Error('Explanation failed.');
       const data = await res.json();
