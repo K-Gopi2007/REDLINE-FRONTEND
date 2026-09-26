@@ -5,6 +5,7 @@ import { RiskChip } from '../components/ui/RiskChip';
 import { DataTable } from '../components/ui/DataTable';
 import { useAppContext } from '../context/AppContext';
 import { apiFetch } from '../api/api';
+import { Link } from 'react-router-dom';
 
 export default function Library() {
   const { openNewContractModal } = useAppContext();
@@ -12,6 +13,11 @@ export default function Library() {
   const [contracts, setContracts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('Status: All');
+  const [riskFilter, setRiskFilter] = useState('Risk Level');
+  const [typeFilter, setTypeFilter] = useState('Type');
 
   useEffect(() => {
     const fetchContracts = async () => {
@@ -22,7 +28,7 @@ export default function Library() {
           if (Array.isArray(data)) {
             const mapped = data.map((c: any) => ({
               id: c.id || c.contract_id,
-              name: c.name || c.filename || 'Untitled Contract',
+              name: c.name || c.title || c.filename || 'Untitled Contract',
               counterparty: c.counterparty || 'Unknown',
               initials: (c.counterparty || 'U').substring(0,2).toUpperCase(),
               status: c.status || 'Active',
@@ -45,12 +51,12 @@ export default function Library() {
   }, []);
 
   const getStatusPill = (status: string) => {
-    switch(status) {
-      case 'Signed': return <Pill className="text-[10px] bg-risk-low-surface text-risk-low-text border-transparent h-6">Signed</Pill>;
-      case 'Active': return <Pill className="text-[10px] bg-surface-container-high text-ink-body border-transparent h-6">Active</Pill>;
-      case 'Archived': return <Pill className="text-[10px] bg-surface-variant text-ink-subdued border-transparent h-6">Archived</Pill>;
-      case 'Rejected': return <Pill className="text-[10px] bg-risk-high-surface text-risk-high-text border-transparent h-6">Rejected</Pill>;
-      default: return null;
+    switch(status.toLowerCase()) {
+      case 'signed': return <Pill className="text-[10px] bg-risk-low-surface text-risk-low-text border-transparent h-6">Signed</Pill>;
+      case 'active': return <Pill className="text-[10px] bg-surface-container-high text-ink-body border-transparent h-6">Active</Pill>;
+      case 'archived': return <Pill className="text-[10px] bg-gray-100 text-gray-500 border-transparent h-6">Archived</Pill>;
+      case 'rejected': return <Pill className="text-[10px] bg-risk-high-surface text-risk-high-text border-transparent h-6">Rejected</Pill>;
+      default: return <Pill className="text-[10px] bg-surface-container-high text-ink-body border-transparent h-6">{status}</Pill>;
     }
   };
 
@@ -58,13 +64,13 @@ export default function Library() {
     { 
       header: 'Contract Name', 
       accessor: (row: any) => (
-        <div className="flex items-center gap-3 py-1 cursor-pointer" onClick={() => setSelectedContract(row.id)}>
-          <div className="w-8 h-8 rounded bg-surface-container-low flex items-center justify-center text-ink-subdued flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded bg-surface-container-low border border-gray-200 flex items-center justify-center text-ink-subdued">
             <span className="material-symbols-outlined text-[16px]">description</span>
           </div>
           <div>
-            <div className="font-semibold text-ink-body mb-0.5">{row.name}</div>
-            <div className="text-ink-subdued text-[11px] tracking-wider">v{row.versions} · {row.versions} revisions</div>
+            <Link to={`/workspace?contractId=${row.id}`} className="font-semibold text-ink-body mb-0.5 hover:text-accent-primary transition-colors cursor-pointer">{row.name}</Link>
+            <div className="text-ink-subdued text-[11px] uppercase tracking-wider">v{row.versions} · {row.date}</div>
           </div>
         </div>
       ) 
@@ -72,20 +78,33 @@ export default function Library() {
     { 
       header: 'Counterparty', 
       accessor: (row: any) => (
-        <div className="flex items-center gap-2 pt-2">
-          <div className="w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-ink-subdued text-[10px]">{row.initials}</div>
+        <div className="flex items-center gap-2 pt-1">
+          <div className="w-5 h-5 rounded-full bg-accent-faint-wash text-accent-primary flex items-center justify-center text-[9px] font-bold">
+            {row.initials}
+          </div>
           <span className="text-ink-body font-medium">{row.counterparty}</span>
         </div>
       ) 
     },
-    { header: 'Status', accessor: (row: any) => <div className="pt-2">{getStatusPill(row.status)}</div> },
-    { header: 'Risk Level', accessor: (row: any) => <div className="pt-2"><RiskChip level={row.risk} label={`${row.risk} risk`} /></div> },
-    { header: 'Last Revised', accessor: (row: any) => <div className="text-ink-subdued pt-2">{row.date}</div> },
     { 
-      header: 'Actions', 
+      header: 'Status', 
+      accessor: (row: any) => <div className="pt-1">{getStatusPill(row.status)}</div> 
+    },
+    { 
+      header: 'Risk Profile', 
       accessor: (row: any) => (
-        <div className="flex items-center gap-3 pt-2">
-          <button className="text-ink-subdued hover:text-accent-primary transition-colors font-medium">View</button>
+        <div className="pt-1">
+          {row.risk === 'low' || row.risk <= 33 ? <RiskChip level="low" label="Low Risk" /> :
+           row.risk === 'medium' || row.risk <= 66 ? <RiskChip level="medium" label="Medium Risk" /> :
+           <RiskChip level="high" label="High Risk" />}
+        </div>
+      ) 
+    },
+    { 
+      header: '', 
+      accessor: (row: any) => (
+        <div className="flex items-center justify-end gap-3 pt-1">
+          <button onClick={() => setSelectedContract(row.id)} className="text-ink-subdued hover:text-accent-primary transition-colors font-medium">History</button>
           <button className="text-ink-subdued hover:text-ink-body transition-colors"><span className="material-symbols-outlined text-[18px]">download</span></button>
           <button className={`transition-colors ${row.favorite ? 'text-[#F59E0B]' : 'text-ink-subdued hover:text-ink-body'}`}>
             <span className="material-symbols-outlined text-[18px]" style={row.favorite ? {fontVariationSettings: "'FILL' 1"} : {}}>star</span>
@@ -94,6 +113,23 @@ export default function Library() {
       ) 
     },
   ];
+
+  const filteredContracts = contracts.filter((c) => {
+    const matchSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.counterparty.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchStatus = statusFilter === 'Status: All' || c.status.toLowerCase() === statusFilter.toLowerCase();
+    
+    let matchRisk = true;
+    if (riskFilter !== 'Risk Level') {
+       let mappedRisk = 'low';
+       if (c.risk === 'high' || c.risk > 66) mappedRisk = 'high';
+       else if (c.risk === 'medium' || (c.risk > 33 && c.risk <= 66)) mappedRisk = 'medium';
+       matchRisk = mappedRisk === riskFilter.toLowerCase();
+    }
+    
+    const matchType = typeFilter === 'Type' || c.name.toLowerCase().includes(typeFilter.toLowerCase());
+
+    return matchSearch && matchStatus && matchRisk && matchType;
+  });
 
   return (
     <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-6 py-8 relative">
@@ -109,31 +145,32 @@ export default function Library() {
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ink-subdued text-[20px]">search</span>
           <input 
             type="text" 
-            placeholder="Search by contract, counterparty, or clause…" 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by contract, counterparty, or clause..." 
             className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-body-md focus:outline-none focus:border-accent-primary focus:ring-2 focus:ring-accent-pale-wash transition-all"
           />
         </div>
         <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 no-scrollbar">
-          <select className="px-3 py-2 bg-surface-container-low border border-gray-200 rounded-lg text-body-sm text-ink-body focus:outline-none">
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-3 py-2 bg-surface-container-low border border-gray-200 rounded-lg text-body-sm text-ink-body focus:outline-none">
             <option>Status: All</option>
             <option>Active</option>
             <option>Signed</option>
             <option>Archived</option>
             <option>Rejected</option>
           </select>
-          <select className="px-3 py-2 bg-surface-container-low border border-gray-200 rounded-lg text-body-sm text-ink-body focus:outline-none">
+          <select value={riskFilter} onChange={(e) => setRiskFilter(e.target.value)} className="px-3 py-2 bg-surface-container-low border border-gray-200 rounded-lg text-body-sm text-ink-body focus:outline-none">
             <option>Risk Level</option>
             <option>High</option>
             <option>Medium</option>
             <option>Low</option>
           </select>
-          <select className="px-3 py-2 bg-surface-container-low border border-gray-200 rounded-lg text-body-sm text-ink-body focus:outline-none">
+          <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="px-3 py-2 bg-surface-container-low border border-gray-200 rounded-lg text-body-sm text-ink-body focus:outline-none">
             <option>Type</option>
             <option>MSA</option>
             <option>NDA</option>
             <option>SOW</option>
           </select>
-          <Button variant="ghost" className="bg-white whitespace-nowrap">More Filters</Button>
         </div>
       </div>
 
@@ -143,21 +180,21 @@ export default function Library() {
           <div className="text-center p-12 text-red-500">{error}</div>
         ) : isLoading ? (
           <div className="text-center p-12 text-ink-subdued">Loading contracts...</div>
-        ) : contracts.length > 0 ? (
-          <DataTable columns={columns} data={contracts} />
+        ) : filteredContracts.length > 0 ? (
+          <DataTable columns={columns} data={filteredContracts} />
         ) : (
           <div className="flex flex-col items-center justify-center p-20 text-center">
             <div className="w-16 h-16 bg-surface-container-low rounded-2xl flex items-center justify-center text-ink-subdued mb-4">
               <span className="material-symbols-outlined text-[32px]">folder_open</span>
             </div>
-            <h3 className="text-headline-sm text-ink-heavy mb-2">No contracts yet</h3>
-            <p className="text-body-md text-ink-subdued mb-6">Start your first review to build your legal library.</p>
+            <h3 className="text-headline-sm text-ink-heavy mb-2">No contracts found</h3>
+            <p className="text-body-md text-ink-subdued mb-6">Try adjusting your filters or upload a new contract.</p>
             <Button variant="primary" onClick={openNewContractModal}>+ New Contract</Button>
           </div>
         )}
       </div>
 
-      {/* Version History Drawer (Popover Mock) */}
+      {/* Version History Drawer (Mock) */}
       {selectedContract && (
         <>
           <div className="fixed inset-0 z-40 bg-ink-heavy/20 backdrop-blur-sm" onClick={() => setSelectedContract(null)}></div>
@@ -174,41 +211,12 @@ export default function Library() {
                 <div className="relative pl-6">
                   <div className="absolute w-4 h-4 bg-accent-primary rounded-full border-4 border-white -left-[9px] top-1"></div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold text-body-md">Version 3 (Current)</span>
-                    <span className="text-label-sm text-ink-subdued">2 hours ago</span>
+                    <span className="font-semibold text-body-md">Version 1 (Original)</span>
+                    <span className="text-label-sm text-ink-subdued">Just now</span>
                   </div>
-                  <p className="text-body-sm text-ink-subdued mb-3">Client accepted the Net 15 payment terms. Counter-signed by procurement.</p>
+                  <p className="text-body-sm text-ink-subdued mb-3">Initial document upload by user.</p>
                   <div className="flex gap-2">
-                    <Button variant="primary" size="sm">View this version</Button>
-                    <Button variant="ghost" size="sm">Download</Button>
-                  </div>
-                </div>
-                
-                <div className="relative pl-6">
-                  <div className="absolute w-4 h-4 bg-gray-300 rounded-full border-4 border-white -left-[9px] top-1"></div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold text-body-md text-ink-body">Version 2</span>
-                    <span className="text-label-sm text-ink-subdued">Yesterday</span>
-                  </div>
-                  <p className="text-body-sm text-ink-subdued mb-3">Agent applied Playbook fallback for uncapped liability. Sent counter-draft to client.</p>
-                  <div className="bg-surface-bright p-3 rounded-lg border border-gray-200 mb-3 text-body-sm text-ink-body flex items-center justify-between group">
-                    <span className="truncate pr-4">"Mutual fixed liability ceiling..."</span>
-                    <button className="text-accent-primary font-semibold text-[10px] uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">sync</span> Reuse</button>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="ghost" size="sm">View</Button>
-                  </div>
-                </div>
-
-                <div className="relative pl-6">
-                  <div className="absolute w-4 h-4 bg-gray-300 rounded-full border-4 border-white -left-[9px] top-1"></div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold text-body-md text-ink-body">Version 1 (Original)</span>
-                    <span className="text-label-sm text-ink-subdued">3 days ago</span>
-                  </div>
-                  <p className="text-body-sm text-ink-subdued mb-3">Initial document upload by Maya Lin.</p>
-                  <div className="flex gap-2">
-                    <Button variant="ghost" size="sm">View</Button>
+                    <Link to={`/workspace?contractId=${selectedContract}`}><Button variant="primary" size="sm">View</Button></Link>
                   </div>
                 </div>
               </div>

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useGoogleLogin } from '@react-oauth/google';
 import { GlassCard } from '../components/ui/GlassCard';
 import { Button } from '../components/ui/Button';
 import { useAppContext } from '../context/AppContext';
 import { API_URL } from '../api/api';
+import { verifyGoogleToken } from '../services/googleAuth';
 
 export default function SignIn() {
   const [searchParams] = useSearchParams();
@@ -17,6 +19,30 @@ export default function SignIn() {
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsGoogleLoading(true);
+      setError(null);
+      try {
+        const data = await verifyGoogleToken(tokenResponse.access_token);
+        if (data.access_token) {
+          login(data.access_token);
+          navigate('/dashboard');
+        } else {
+          throw new Error('Invalid response from server.');
+        }
+      } catch (err: any) {
+        setError(err.message || 'Google authentication failed.');
+      } finally {
+        setIsGoogleLoading(false);
+      }
+    },
+    onError: () => {
+      setError('Google authentication was cancelled or failed.');
+    }
+  });
 
   useEffect(() => {
     if (searchParams.get('tab') === 'signup') {
@@ -162,7 +188,7 @@ export default function SignIn() {
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-label-md text-ink-body">Password</label>
                 {tab === 'signin' && (
-                  <a href="#" className="text-label-sm text-accent-primary hover:underline">Forgot password?</a>
+                  <a href="#forgot-password" onClick={(e) => e.preventDefault()} className="text-label-sm text-accent-primary hover:underline">Forgot password?</a>
                 )}
               </div>
               <input 
@@ -198,8 +224,17 @@ export default function SignIn() {
             <div className="h-px bg-gray-200 flex-1"></div>
           </div>
 
-          <Button variant="ghost" className="w-full flex items-center justify-center gap-2">
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
+          <Button 
+            variant="ghost" 
+            className="w-full flex items-center justify-center gap-2"
+            onClick={() => handleGoogleLogin()}
+            disabled={isGoogleLoading || isLoading}
+          >
+            {isGoogleLoading ? (
+              <span className="material-symbols-outlined animate-spin w-5 h-5 flex items-center justify-center">progress_activity</span>
+            ) : (
+              <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
+            )}
             Continue with Google
           </Button>
 

@@ -10,7 +10,6 @@ export default function Navbar({ isPublic }: { isPublic?: boolean }) {
 
   const appLinks = [
     { label: 'Workspace', path: '/workspace' },
-    { label: 'Documents', path: '/documents/1' },
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Library', path: '/library' },
   ];

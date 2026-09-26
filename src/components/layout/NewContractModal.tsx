@@ -8,9 +8,10 @@ export default function NewContractModal() {
   const { isNewContractModalOpen, closeNewContractModal } = useAppContext();
   const navigate = useNavigate();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [templateType, setTemplateType] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isNewContractModalOpen) return null;
@@ -19,21 +20,29 @@ export default function NewContractModal() {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
       setSelectedOption('upload');
-      setUploadError(null);
+      setTemplateType(null);
+      setError(null);
     }
+  };
+
+  const handleTemplateSelect = (type: string) => {
+    setSelectedOption('template');
+    setTemplateType(type.toLowerCase());
+    setFile(null);
+    setError(null);
   };
 
   const handleStartReview = async () => {
     if (selectedOption === 'upload' && file) {
-      setIsUploading(true);
-      setUploadError(null);
+      setIsProcessing(true);
+      setError(null);
       try {
         const formData = new FormData();
         formData.append('file', file);
         
         const response = await apiFetch('/api/v1/contracts/upload', {
           method: 'POST',
-          body: formData as any, // apiFetch handles headers (doesn't set JSON content type)
+          body: formData as any, 
         });
 
         if (!response.ok) {
@@ -46,9 +55,35 @@ export default function NewContractModal() {
         closeNewContractModal();
         navigate(`/workspace?contractId=${contractId}`);
       } catch (err: any) {
-        setUploadError(err.message || 'An error occurred during upload.');
+        setError(err.message || 'An error occurred during upload.');
       } finally {
-        setIsUploading(false);
+        setIsProcessing(false);
+      }
+    } else if (selectedOption === 'template' && templateType) {
+      setIsProcessing(true);
+      setError(null);
+      try {
+        const response = await apiFetch('/api/v1/contracts/template', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ template_type: templateType }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Template generation failed.');
+        }
+
+        const data = await response.json();
+        const contractId = data.id || data.contract_id;
+        
+        closeNewContractModal();
+        navigate(`/workspace?contractId=${contractId}`);
+      } catch (err: any) {
+        setError(err.message || 'An error occurred during template generation.');
+      } finally {
+        setIsProcessing(false);
       }
     } else {
       closeNewContractModal();
@@ -62,7 +97,7 @@ export default function NewContractModal() {
       <div 
         className="absolute inset-0 bg-ink-heavy/35"
         style={{ backdropFilter: 'blur(4px)' }}
-        onClick={!isUploading ? closeNewContractModal : undefined}
+        onClick={!isProcessing ? closeNewContractModal : undefined}
       />
       
       {/* Modal */}
@@ -74,16 +109,16 @@ export default function NewContractModal() {
           <h2 className="text-headline-sm font-semibold">Start a new contract review</h2>
           <button 
             onClick={closeNewContractModal}
-            disabled={isUploading}
+            disabled={isProcessing}
             className="text-ink-subdued hover:text-ink-heavy transition-colors disabled:opacity-50"
           >
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
         
-        {uploadError && (
+        {error && (
           <div className="mx-6 mt-4 p-4 bg-red-50 text-red-600 rounded-lg text-body-sm border border-red-100">
-            {uploadError}
+            {error}
           </div>
         )}
 
@@ -97,41 +132,48 @@ export default function NewContractModal() {
             className="hidden" 
           />
           <div 
-            className={`border rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-colors ${selectedOption === 'upload' ? 'border-accent-primary bg-accent-faint-wash' : 'border-gray-200 hover:border-accent-muted-tint'} ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
+            className={`border rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-colors ${selectedOption === 'upload' ? 'border-accent-primary bg-accent-faint-wash' : 'border-gray-200 hover:border-accent-muted-tint'} ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
             onClick={() => fileInputRef.current?.click()}
           >
             <span className="material-symbols-outlined text-4xl text-accent-primary mb-3">
-              {isUploading ? 'hourglass_empty' : 'upload_file'}
+              {isProcessing && selectedOption === 'upload' ? 'hourglass_empty' : 'upload_file'}
             </span>
             <h3 className="font-semibold text-body-lg mb-1">
               {file ? file.name : 'Upload existing contract'}
             </h3>
             <p className="text-body-sm text-ink-subdued">
-              {isUploading ? 'Uploading...' : 'Drag & drop or click to browse · PDF or DOCX, max 20MB'}
+              {isProcessing && selectedOption === 'upload' ? 'Uploading...' : 'Drag & drop or click to browse · PDF or DOCX, max 20MB'}
             </p>
           </div>
 
           {/* Option 2: Template */}
           <div 
-            className={`border rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-colors ${selectedOption === 'template' ? 'border-accent-primary bg-accent-faint-wash' : 'border-gray-200 hover:border-accent-muted-tint'} ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
-            onClick={() => { setSelectedOption('template'); setFile(null); }}
+            className={`border rounded-xl p-6 flex flex-col items-center justify-center text-center transition-colors ${selectedOption === 'template' ? 'border-accent-primary bg-accent-faint-wash' : 'border-gray-200'} ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
           >
-            <span className="material-symbols-outlined text-4xl text-accent-primary mb-3">description</span>
-            <h3 className="font-semibold text-body-lg mb-3">Start from a template</h3>
+            <span className="material-symbols-outlined text-4xl text-accent-primary mb-3">
+              {isProcessing && selectedOption === 'template' ? 'hourglass_empty' : 'description'}
+            </span>
+            <h3 className="font-semibold text-body-lg mb-3">
+              {isProcessing && selectedOption === 'template' ? 'Generating Template...' : 'Start from a template'}
+            </h3>
             <div className="grid grid-cols-2 gap-2 w-full">
-              {['NDA', 'MSA', 'SOW', 'Freelance Service Agreement'].map(t => (
-                <div key={t} className="bg-surface-container-low border border-gray-200 text-[10px] uppercase font-semibold text-ink-subdued py-1 px-2 rounded truncate">
+              {['NDA', 'MSA', 'SOW', 'Freelance'].map(t => (
+                <button 
+                  key={t}
+                  onClick={() => handleTemplateSelect(t)}
+                  className={`border text-[10px] uppercase font-semibold py-1 px-2 rounded truncate transition-colors ${selectedOption === 'template' && templateType === t.toLowerCase() ? 'bg-accent-primary text-white border-accent-primary' : 'bg-surface-container-low border-gray-200 text-ink-subdued hover:border-accent-muted-tint'}`}
+                >
                   {t}
-                </div>
+                </button>
               ))}
             </div>
           </div>
         </div>
 
         <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-surface-bright">
-          <Button variant="ghost" onClick={closeNewContractModal} disabled={isUploading}>Cancel</Button>
-          <Button variant="primary" disabled={!selectedOption || isUploading} onClick={handleStartReview}>
-            {isUploading ? 'Processing contract...' : 'Start Review →'}
+          <Button variant="ghost" onClick={closeNewContractModal} disabled={isProcessing}>Cancel</Button>
+          <Button variant="primary" disabled={!selectedOption || isProcessing || (selectedOption === 'template' && !templateType)} onClick={handleStartReview}>
+            {isProcessing ? 'Processing...' : 'Start Review →'}
           </Button>
         </div>
       </div>
