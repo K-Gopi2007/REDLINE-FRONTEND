@@ -35,7 +35,15 @@ export default function Workspace() {
           method: 'POST',
           body: JSON.stringify({ contract_id: contractId })
         });
-        if (!reviewRes.ok) throw new Error('Failed to review contract. Backend unavailable or invalid file.');
+        if (!reviewRes.ok) {
+          let errorMsg = `Failed to review contract (${reviewRes.status}).`;
+          try {
+            const errData = await reviewRes.json();
+            if (errData.detail) errorMsg = typeof errData.detail === 'string' ? errData.detail : JSON.stringify(errData.detail);
+            else if (errData.message) errorMsg = errData.message;
+          } catch (e) {}
+          throw new Error(errorMsg);
+        }
         const review = await reviewRes.json();
         setReviewData(review);
 
@@ -45,7 +53,15 @@ export default function Workspace() {
           method: 'POST',
           body: JSON.stringify({ contract_id: contractId })
         });
-        if (!riskRes.ok) throw new Error('Risk analysis failed.');
+        if (!riskRes.ok) {
+          let errorMsg = `Risk analysis failed (${riskRes.status}).`;
+          try {
+            const errData = await riskRes.json();
+            if (errData.detail) errorMsg = typeof errData.detail === 'string' ? errData.detail : JSON.stringify(errData.detail);
+            else if (errData.message) errorMsg = errData.message;
+          } catch (e) {}
+          throw new Error(errorMsg);
+        }
         const risk = await riskRes.json();
         setRiskData(risk);
 
@@ -55,7 +71,15 @@ export default function Workspace() {
           method: 'POST',
           body: JSON.stringify({ contract_id: contractId })
         });
-        if (!negRes.ok) throw new Error('Negotiation generation failed.');
+        if (!negRes.ok) {
+          let errorMsg = `Negotiation generation failed (${negRes.status}).`;
+          try {
+            const errData = await negRes.json();
+            if (errData.detail) errorMsg = typeof errData.detail === 'string' ? errData.detail : JSON.stringify(errData.detail);
+            else if (errData.message) errorMsg = errData.message;
+          } catch (e) {}
+          throw new Error(errorMsg);
+        }
         const negotiate = await negRes.json();
         setNegotiateData(negotiate);
         
