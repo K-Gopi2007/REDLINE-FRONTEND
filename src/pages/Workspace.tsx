@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Pill } from '../components/ui/Pill';
 import { Stepper } from '../components/ui/Stepper';
 import type { Step } from '../components/ui/Stepper';
 import { Button } from '../components/ui/Button';
 import { apiFetch } from '../api/api';
+import { useAppContext } from '../context/AppContext';
 
 export default function Workspace() {
   const [searchParams] = useSearchParams();
   const contractId = searchParams.get('contractId');
+  const navigate = useNavigate();
+  const { openNewContractModal } = useAppContext();
   
   const [status, setStatus] = useState<'idle' | 'reviewing' | 'analyzing' | 'negotiating' | 'done' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -106,6 +109,28 @@ export default function Workspace() {
       description: status === 'negotiating' ? 'Building negotiation strategy...' : (negotiateData ? 'Strategy built.' : ''),
     }
   ];
+
+  if (!contractId) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center h-[calc(100vh-73px)] text-center p-6 bg-surface-bright">
+        <div className="w-16 h-16 bg-surface-container-low rounded-full flex items-center justify-center text-ink-subdued mb-4">
+          <span className="material-symbols-outlined text-3xl">description</span>
+        </div>
+        <h2 className="text-headline-sm font-semibold mb-2">No Contract Selected</h2>
+        <p className="text-body-md text-ink-subdued max-w-md mb-6">
+          Upload a new contract or select an existing one from your dashboard to begin the review process.
+        </p>
+        <div className="flex gap-4">
+          <Button variant="primary" onClick={openNewContractModal}>
+            + New Contract
+          </Button>
+          <Button variant="ghost" onClick={() => navigate('/dashboard')}>
+            Go to Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col h-[calc(100vh-73px)]">
