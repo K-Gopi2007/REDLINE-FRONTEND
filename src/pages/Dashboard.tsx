@@ -6,6 +6,8 @@ import { DataTable } from '../components/ui/DataTable';
 import { useAppContext } from '../context/AppContext';
 import { Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Line, ComposedChart } from 'recharts';
 import { apiFetch } from '../api/api';
+import { motion } from 'framer-motion';
+import { Shield, Clock, ArrowUpRight, ShieldAlert, Bell, Search, Filter, FileText, ChevronRight, ChevronLeft } from 'lucide-react';
 
 export default function Dashboard() {
   const [contracts, setContracts] = useState<any[]>([]);
@@ -77,127 +79,122 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto w-full px-6 py-8">
+    <div className="max-w-7xl mx-auto w-full px-6 py-8 relative">
+      {/* Background Glow */}
+      <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-accent-primary/5 rounded-full blur-[120px] pointer-events-none" />
+      
       {/* Top Banner */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6 mb-8">
-        <div className="bg-white rounded-2xl p-8 border border-gray-100 flex flex-col justify-center" style={{ boxShadow: '0 1px 3px 0 rgba(31,36,33,0.04), 0 6px 16px -4px rgba(31,36,33,0.06)' }}>
-          <Pill className="self-start mb-4 text-[10px] bg-surface-container-low border-transparent">● AUTONOMOUS LEGAL INTEL ENGINE</Pill>
-          <h2 className="text-headline-md text-ink-heavy mb-2">Dashboard Overview</h2>
-          <p className="text-body-md text-ink-subdued mb-6">Your AI agent analyzed agreements this week with a 100% adherence to your creative studio fallback handbook.</p>
-          <div className="flex items-center gap-6 text-label-sm text-ink-body font-medium mt-auto">
-            <span className="flex items-center gap-1"><span className="material-symbols-outlined text-accent-primary text-[16px]">shield</span> Zero critical breaches unflagged</span>
-            <span className="flex items-center gap-1"><span className="material-symbols-outlined text-ink-subdued text-[16px]">lock_clock</span> System active</span>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6 mb-8 relative z-10">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col justify-center">
+          <Pill className="self-start mb-4 text-[10px] bg-accent-primary/10 text-accent-primary border-transparent">● AUTONOMOUS LEGAL INTEL ENGINE</Pill>
+          <h2 className="text-3xl font-bold text-ink-heavy mb-2 tracking-tight">Dashboard Overview</h2>
+          <p className="text-sm text-ink-subdued mb-6 max-w-lg">Your AI agent analyzed agreements this week with a 100% adherence to your creative studio fallback handbook.</p>
+          <div className="flex items-center gap-6 text-xs text-ink-body font-medium mt-auto">
+            <span className="flex items-center gap-1.5"><Shield size={16} className="text-accent-primary" /> Zero critical breaches unflagged</span>
+            <span className="flex items-center gap-1.5"><Clock size={16} className="text-ink-subdued" /> System active</span>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-accent-deep rounded-2xl p-8 text-white flex flex-col relative overflow-hidden" style={{ boxShadow: '0 1px 3px 0 rgba(31,36,33,0.04), 0 6px 16px -4px rgba(31,36,33,0.06)' }}>
-          <Pill className="self-start mb-4 text-[10px] bg-risk-medium-surface text-risk-medium-text border-transparent">⚠ WEEKLY EXPOSURE SHIELD</Pill>
-          <h2 className="text-headline-md mb-2">{stats?.estimated_savings ? `$${(stats.estimated_savings).toLocaleString()}` : '$0'} in unbilled scope protected</h2>
-          <p className="text-body-sm text-accent-muted-tint mb-6 max-w-[85%]">{stats?.high_risk || 0} uncapped indemnity clauses identified.</p>
-          <div className="flex items-center justify-between mt-auto">
-            <span className="text-label-sm text-accent-pale-wash opacity-80">Audit trail verified for all changes</span>
-            <button onClick={openRiskDigestModal} className="text-label-md font-semibold text-accent-primary bg-white px-3 py-1.5 rounded-lg hover:bg-surface-container-low transition-colors">
-              Download Digest ↗
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-gradient-to-br from-accent-primary to-accent-deep rounded-3xl p-8 text-white flex flex-col relative overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+          <Pill className="self-start mb-4 text-[10px] bg-risk-medium-surface text-risk-medium-text border-transparent backdrop-blur-md">⚠ WEEKLY EXPOSURE SHIELD</Pill>
+          <h2 className="text-3xl font-bold mb-2 tracking-tight">{stats?.estimated_savings ? `$${(stats.estimated_savings).toLocaleString()}` : '$0'} <span className="text-xl font-normal opacity-80">saved</span></h2>
+          <p className="text-sm text-white/70 mb-6 max-w-[85%]">{stats?.high_risk || 0} uncapped indemnity clauses identified.</p>
+          <div className="flex items-center justify-between mt-auto z-10">
+            <span className="text-xs text-white/60">Audit trail verified</span>
+            <button onClick={openRiskDigestModal} className="flex items-center gap-1 text-xs font-semibold text-accent-deep bg-white px-3 py-1.5 rounded-xl hover:bg-white/90 transition-all shadow-sm">
+              Digest <ArrowUpRight size={14} />
             </button>
           </div>
-          <span className="material-symbols-outlined absolute -right-6 -bottom-6 text-[120px] text-accent-primary opacity-20 pointer-events-none">security</span>
-        </div>
+          <ShieldAlert size={140} className="absolute -right-8 -bottom-8 text-white/5 pointer-events-none" />
+        </motion.div>
       </div>
 
-      {isLoading && <div className="text-center py-12"><span className="material-symbols-outlined animate-spin text-4xl text-accent-primary">progress_activity</span><p className="mt-4 text-ink-subdued">Loading dashboard...</p></div>}
+      {isLoading && <div className="text-center py-20 flex flex-col items-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-primary mb-4" /><p className="text-ink-subdued text-sm">Loading intelligence...</p></div>}
       
-      {error && <div className="p-8 mb-8 bg-red-50 text-red-600 rounded-xl border border-red-100">{error}</div>}
+      {error && <div className="p-8 mb-8 bg-red-50/80 backdrop-blur-md text-red-600 rounded-2xl border border-red-100">{error}</div>}
 
       {!isLoading && !error && (
-        <>
+        <div className="relative z-10">
           {/* 4 Stat Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {statCards.map(stat => (
-              <div key={stat.label} className="bg-white rounded-2xl p-6 border border-gray-100 flex flex-col" style={{ boxShadow: '0 1px 3px 0 rgba(31,36,33,0.04), 0 6px 16px -4px rgba(31,36,33,0.06)' }}>
-                <div className="text-label-sm text-ink-subdued uppercase mb-2">{stat.label}</div>
-                <div className="text-headline-lg text-ink-heavy mb-2">{stat.value}</div>
-                <div className="text-body-sm text-ink-subdued mt-auto">{stat.sub}</div>
-              </div>
+            {statCards.map((stat, idx) => (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + idx * 0.05 }} key={stat.label} className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-white shadow-[0_4px_20px_rgb(0,0,0,0.03)] flex flex-col">
+                <div className="text-[11px] font-semibold tracking-wider text-ink-subdued uppercase mb-2">{stat.label}</div>
+                <div className="text-3xl font-bold text-ink-heavy mb-2 tracking-tight">{stat.value}</div>
+                <div className="text-xs text-ink-subdued mt-auto font-medium">{stat.sub}</div>
+              </motion.div>
             ))}
           </div>
 
           {/* Upcoming Deadlines Widget */}
-          <div className="bg-white rounded-2xl border border-gray-100 mb-8 overflow-hidden" style={{ boxShadow: '0 1px 3px 0 rgba(31,36,33,0.04), 0 6px 16px -4px rgba(31,36,33,0.06)' }}>
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-              <span className="material-symbols-outlined text-risk-medium-text text-[20px]">notifications_active</span>
-              <h3 className="text-headline-sm text-ink-heavy">Upcoming Deadlines</h3>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white mb-8 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+            <div className="px-6 py-4 border-b border-gray-100/50 flex items-center gap-2 bg-white/40">
+              <Bell size={18} className="text-risk-medium-text" />
+              <h3 className="text-sm font-bold text-ink-heavy">Upcoming Deadlines</h3>
             </div>
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-50">
               {deadlines.length > 0 ? deadlines.map(dl => (
-                <div key={dl.id} className="p-4 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-surface-container-low/50 transition-colors">
+                <div key={dl.id} className="p-4 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors">
                   <div>
                     <div className="flex items-center gap-3 mb-1">
-                      <span className="font-semibold text-body-md">{dl.name}</span>
-                      <span className="text-label-sm text-ink-subdued bg-surface-container-high px-2 py-0.5 rounded">{dl.cp}</span>
+                      <span className="font-semibold text-sm text-ink-heavy">{dl.name}</span>
+                      <span className="text-[10px] uppercase font-bold text-ink-subdued bg-gray-100 px-2 py-0.5 rounded-md">{dl.cp}</span>
                       <RiskChip level={dl.urgency || "medium"} label={dl.date} className="h-5 text-[10px]" />
                     </div>
-                    <div className="text-body-sm text-ink-subdued">{dl.clause}</div>
+                    <div className="text-xs text-ink-subdued">{dl.clause}</div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button className="px-3 py-1.5 border border-accent-muted-tint text-accent-primary text-label-md rounded-lg hover:bg-accent-pale-wash transition-colors">Draft cancellation notice</button>
-                    <button className="p-1.5 text-ink-subdued hover:bg-gray-100 rounded-lg transition-colors" title="Remind me later"><span className="material-symbols-outlined text-[18px]">alarm_add</span></button>
+                    <button className="px-3 py-1.5 border border-gray-200 text-ink-body text-xs font-medium rounded-xl hover:bg-gray-50 transition-colors">Draft notice</button>
+                    <button className="p-1.5 text-ink-subdued hover:bg-gray-100 rounded-xl transition-colors" title="Remind me later"><Clock size={16} /></button>
                   </div>
                 </div>
               )) : (
-                <div className="p-6 text-center text-ink-subdued">No upcoming deadlines found.</div>
+                <div className="p-8 text-center text-sm text-ink-subdued">No upcoming deadlines found.</div>
               )}
             </div>
-          </div>
+          </motion.div>
 
           {/* Two-column chart row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white rounded-2xl p-6 border border-gray-100" style={{ boxShadow: '0 1px 3px 0 rgba(31,36,33,0.04), 0 6px 16px -4px rgba(31,36,33,0.06)' }}>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col">
               <div className="mb-6">
-                <h3 className="text-headline-sm text-ink-heavy mb-1">Contract Velocity & Review Volume</h3>
-                <p className="text-body-sm text-ink-subdued">Monthly agreements parsed vs. median hours to execute redline draft</p>
+                <h3 className="text-sm font-bold text-ink-heavy mb-1">Contract Velocity</h3>
+                <p className="text-xs text-ink-subdued">Volume vs. turnaround time</p>
               </div>
-              <div className="h-64 w-full mb-4">
+              <div className="h-64 w-full mb-4 flex-1">
                 {velocityData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart data={velocityData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                      <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#636B66' }} dy={10} />
-                      <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#636B66' }} />
+                      <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#636B66' }} dy={10} />
+                      <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#636B66' }} />
                       <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={false} />
-                      <Tooltip cursor={{fill: '#F0F5F0'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
-                      <Bar yAxisId="left" dataKey="volume" fill="#CBE3D5" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                      <Tooltip cursor={{fill: 'rgba(0,0,0,0.02)'}} contentStyle={{ borderRadius: '12px', border: '1px solid rgba(255,255,255,0.8)', boxShadow: '0 8px 30px rgba(0,0,0,0.08)', backdropFilter: 'blur(8px)' }} />
+                      <Bar yAxisId="left" dataKey="volume" fill="#E3EFE8" radius={[4, 4, 0, 0]} maxBarSize={40} />
                       <Line yAxisId="right" type="monotone" dataKey="speed" stroke="#2F6B4F" strokeWidth={3} dot={{ r: 4, fill: '#2F6B4F', strokeWidth: 0 }} />
                     </ComposedChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="h-full flex items-center justify-center text-ink-subdued">Not enough data to display chart.</div>
+                  <div className="h-full flex items-center justify-center text-xs text-ink-subdued">Not enough data to display chart.</div>
                 )}
               </div>
-              <div className="flex items-center gap-4 text-label-sm">
-                <div className="flex items-center gap-1.5"><div className="w-3 h-3 bg-accent-muted-tint rounded-sm" /> <span className="text-ink-subdued">Volume</span></div>
-                <div className="flex items-center gap-1.5"><div className="w-3 h-1 bg-accent-primary rounded-sm" /> <span className="text-ink-subdued">Speed (hrs)</span></div>
-              </div>
-              <div className="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center text-label-sm">
-                <span className="text-accent-primary font-medium">↗ Avg counterparty negotiation cycle has compressed by 68%.</span>
-                <span className="text-ink-subdued">Refreshed just now</span>
-              </div>
-            </div>
+            </motion.div>
 
-            <div className="bg-white rounded-2xl p-6 border border-gray-100" style={{ boxShadow: '0 1px 3px 0 rgba(31,36,33,0.04), 0 6px 16px -4px rgba(31,36,33,0.06)' }}>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col">
               <div className="mb-6">
-                <h3 className="text-headline-sm text-ink-heavy mb-1">Top Flagged Clauses</h3>
-                <p className="text-body-sm text-ink-subdued">Breakdown of standard contract liabilities intercepted</p>
+                <h3 className="text-sm font-bold text-ink-heavy mb-1">Top Flagged Clauses</h3>
+                <p className="text-xs text-ink-subdued">Breakdown of standard contract liabilities</p>
               </div>
               
               {highRisk && highRisk.total_clauses > 0 ? (
                 <>
                   <div className="mb-8">
-                    <div className="text-label-sm font-semibold mb-2 text-ink-body">Overall Risk Distribution</div>
-                    <div className="h-8 w-full flex rounded-full overflow-hidden mb-2">
+                    <div className="text-xs font-semibold mb-2 text-ink-body">Overall Risk Distribution</div>
+                    <div className="h-4 w-full flex rounded-full overflow-hidden mb-2 opacity-90">
                       {highRisk.distribution.map((dist: any) => (
                         <div key={dist.name} className={`${dist.color} h-full`} style={{ width: `${dist.percentage}%` }}></div>
                       ))}
                     </div>
-                    <div className="text-body-sm text-ink-subdued">{highRisk.total_clauses} Total Clauses</div>
+                    <div className="text-xs text-ink-subdued font-medium">{highRisk.total_clauses} Total Clauses</div>
                   </div>
 
                   <div className="space-y-4 mb-6">
@@ -206,54 +203,50 @@ export default function Dashboard() {
                         <div className="flex items-center gap-3">
                           <span className={`w-2.5 h-2.5 rounded-full ${dist.color}`} />
                           <div>
-                            <div className="font-semibold text-body-sm">{dist.name}</div>
-                            <div className="text-body-sm text-ink-subdued">{dist.desc}</div>
+                            <div className="font-semibold text-sm text-ink-heavy">{dist.name}</div>
+                            <div className="text-xs text-ink-subdued">{dist.desc}</div>
                           </div>
                         </div>
-                        <div className="font-semibold text-body-md">{dist.percentage}%</div>
+                        <div className="font-bold text-sm text-ink-heavy">{dist.percentage}%</div>
                       </div>
                     ))}
                   </div>
                 </>
               ) : (
                 <div className="py-12 flex flex-col items-center text-ink-subdued">
-                  <span className="material-symbols-outlined text-4xl mb-2 opacity-50">task_alt</span>
-                  <p>No high-risk clauses detected.</p>
+                  <Shield size={32} className="mb-3 opacity-30" />
+                  <p className="text-sm">No high-risk clauses detected.</p>
                 </div>
               )}
-
-              <div className="mt-auto pt-4 border-t border-gray-100 text-right">
-                <button className="text-label-md font-semibold text-accent-primary hover:underline">Configure Fallback Playbook Rules ⚙</button>
-              </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Active Review Queue Table */}
-          <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden" style={{ boxShadow: '0 1px 3px 0 rgba(31,36,33,0.04), 0 6px 16px -4px rgba(31,36,33,0.06)' }}>
-            <div className="px-6 py-5 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+            <div className="px-6 py-5 border-b border-gray-100/50 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/40">
               <div>
-                <h3 className="text-headline-sm text-ink-heavy mb-1">Active Review Queue</h3>
-                <p className="text-body-sm text-ink-subdued">{contracts.length} contracts requiring active governance or waiting on counterparty sign-off</p>
+                <h3 className="text-sm font-bold text-ink-heavy mb-1">Active Review Queue</h3>
+                <p className="text-xs text-ink-subdued">{contracts.length} contracts requiring active governance</p>
               </div>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ink-subdued text-[18px]">search</span>
-                <input type="text" placeholder="Filter agreements…" className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-body-sm focus:outline-none focus:border-accent-primary w-full md:w-64" />
-                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-ink-subdued text-[18px] cursor-pointer">filter_list</span>
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-subdued" />
+                <input type="text" placeholder="Filter agreements…" className="pl-9 pr-4 py-2 border border-gray-200/80 rounded-xl text-xs focus:outline-none focus:border-accent-primary focus:ring-2 focus:ring-accent-primary/20 w-full md:w-64 bg-white/50 transition-all" />
+                <Filter size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subdued cursor-pointer" />
               </div>
             </div>
             
             {contracts.length > 0 ? (
               <DataTable 
                 columns={[
-                  { header: 'Contract Name', accessor: (row) => <div><div className="font-semibold text-ink-body mb-0.5">{row.name}</div><div className="text-ink-subdued text-[11px] uppercase tracking-wider">{row.meta}</div></div> },
-                  { header: 'Counterparty', accessor: (row) => <div className="text-ink-body font-medium pt-1">{row.counterparty}</div> },
+                  { header: 'Contract Name', accessor: (row) => <div><div className="font-semibold text-sm text-ink-body mb-0.5">{row.name}</div><div className="text-ink-subdued text-[10px] uppercase tracking-wider">{row.meta}</div></div> },
+                  { header: 'Counterparty', accessor: (row) => <div className="text-ink-body font-medium text-sm pt-1">{row.counterparty}</div> },
                   { header: 'Risk Level', accessor: (row) => <div className="pt-1"><RiskChip level={row.risk as any} label={`${row.risk} risk`} /></div> },
-                  { header: 'Key Flagged Clauses', accessor: (row) => <div className="text-ink-subdued pt-1 truncate max-w-xs">{row.clauses}</div> },
-                  { header: 'Agent Status', accessor: (row) => <div className="pt-1"><Pill>{row.status}</Pill></div> },
+                  { header: 'Key Flagged Clauses', accessor: (row) => <div className="text-ink-subdued text-xs pt-1 truncate max-w-xs">{row.clauses}</div> },
+                  { header: 'Agent Status', accessor: (row) => <div className="pt-1"><Pill className="text-[10px] h-6">{row.status}</Pill></div> },
                   { header: 'Actions', accessor: (row) => (
                       <div className="pt-1">
                         <Link to={`/workspace?contractId=${row.id}`}>
-                          <span className={`text-label-md font-semibold cursor-pointer hover:underline ${row.actionType === 'primary' ? 'text-accent-primary' : 'text-ink-body'}`}>{row.action}</span>
+                          <span className={`text-xs font-semibold cursor-pointer hover:underline ${row.actionType === 'primary' ? 'text-accent-primary' : 'text-ink-body'}`}>{row.action}</span>
                         </Link>
                       </div>
                     ) 
@@ -262,24 +255,24 @@ export default function Dashboard() {
                 data={contracts}
               />
             ) : (
-              <div className="text-center py-16 flex flex-col items-center border-b border-gray-100">
-                <span className="material-symbols-outlined text-4xl text-gray-300 mb-4">description</span>
-                <p className="text-ink-heavy font-medium">No active contracts found</p>
-                <p className="text-ink-subdued text-body-sm mt-1">Upload an agreement to see it here.</p>
+              <div className="text-center py-16 flex flex-col items-center border-b border-gray-50">
+                <FileText size={32} className="text-gray-300 mb-4" />
+                <p className="text-ink-heavy font-medium text-sm">No active contracts found</p>
+                <p className="text-ink-subdued text-xs mt-1">Upload an agreement to see it here.</p>
               </div>
             )}
-            <div className="px-6 py-4 bg-surface-bright flex items-center justify-between text-body-sm text-ink-subdued">
+            <div className="px-6 py-4 bg-gray-50/50 flex items-center justify-between text-xs text-ink-subdued border-t border-gray-100/50">
               <span>Showing {contracts.length} active contracts</span>
               {contracts.length > 0 && (
                 <div className="flex items-center gap-4">
-                  <button className="hover:text-ink-body">Previous</button>
-                  <span className="w-8 h-8 flex items-center justify-center rounded-lg bg-accent-pale-wash text-accent-primary font-semibold">1</span>
-                  <button className="hover:text-ink-body">Next</button>
+                  <button className="hover:text-ink-body p-1"><ChevronLeft size={16} /></button>
+                  <span className="w-6 h-6 flex items-center justify-center rounded-md bg-accent-pale-wash text-accent-primary font-semibold">1</span>
+                  <button className="hover:text-ink-body p-1"><ChevronRight size={16} /></button>
                 </div>
               )}
             </div>
-          </div>
-        </>
+          </motion.div>
+        </div>
       )}
     </div>
   );
