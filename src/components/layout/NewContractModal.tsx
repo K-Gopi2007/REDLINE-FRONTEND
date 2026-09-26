@@ -39,6 +39,7 @@ export default function NewContractModal() {
       try {
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('title', file.name.split('.').slice(0, -1).join('.') || file.name);
         
         const response = await apiFetch('/api/v1/contracts/upload', {
           method: 'POST',
