@@ -46,7 +46,18 @@ export default function NewContractModal() {
         });
 
         if (!response.ok) {
-          throw new Error('Upload failed. Backend might be unavailable or file is invalid.');
+          let errorMsg = `Upload failed (${response.status}). Backend might be unavailable or file is invalid.`;
+          try {
+            const errData = await response.json();
+            if (errData.detail) {
+              errorMsg = typeof errData.detail === 'string' ? errData.detail : JSON.stringify(errData.detail);
+            } else if (errData.message) {
+              errorMsg = errData.message;
+            }
+          } catch (e) {
+            // Ignore JSON parse error
+          }
+          throw new Error(errorMsg);
         }
 
         const data = await response.json();
@@ -72,7 +83,18 @@ export default function NewContractModal() {
         });
 
         if (!response.ok) {
-          throw new Error('Template generation failed.');
+          let errorMsg = `Template generation failed (${response.status}).`;
+          try {
+            const errData = await response.json();
+            if (errData.detail) {
+              errorMsg = typeof errData.detail === 'string' ? errData.detail : JSON.stringify(errData.detail);
+            } else if (errData.message) {
+              errorMsg = errData.message;
+            }
+          } catch (e) {
+            // Ignore JSON parse error
+          }
+          throw new Error(errorMsg);
         }
 
         const data = await response.json();
